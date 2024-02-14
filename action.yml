@@ -1,0 +1,102 @@
+name: Build ios
+description: Build ios app see https://docs.github.com/en/actions/deployment/deploying-xcode-applications/installing-an-apple-certificate-on-macos-runners-for-xcode-development for more info
+inputs:
+  working-directory:
+    description: The root directory of the flutter app within this repository
+    default: ./
+  build-cmd:
+    description: The full build command, can be used to add arguments
+    default: flutter build ipa --release
+  flutterfire:
+    description: "Whether this project uses flutterfire"
+    required: false
+    default: "true" # we'll setup flutter fire just in case
+  certificate-base64:
+    description: "base 64 of the p12 certificate"
+    required: true
+  certificate-password:
+    description: "password of the above certificate, note to cedric: it should be in password manager in ios_cert.p12"
+    required: true
+  provisioning-profile-base64:
+    description: "base 64 of comover.mobileprovision"
+    required: true
+  keychain-password:
+    description: "random string in secrets"
+    required: true
+
+runs:
+  using: "composite"
+  steps:
+    - name: xcode version
+      run: /usr/bin/xcodebuild -version
+      shell: bash
+
+    - name: Check flutter found
+      id: check_flutter
+      shell: bash
+      run: |
+        if flutter --version; then
+            echo "installed=true" >> "$GITHUB_OUTPUT"
+        else
+            echo "installed=false" >> "$GITHUB_OUTPUT"
+        fi
+
+    - name: Setup flutter
+      if: steps.check_flutter.outputs.installed == 'false'
+      uses: subosito/flutter-action@v2
+      with:
+        channel: "stable"
+        cache: true
+
+    - name: Activate flutterfire
+      if: ${{ inputs.flutterfire }} == 'true'
+      run: dart pub global activate flutterfire_cli 0.3.0-dev.19 --overwrite
+      shell: bash
+
+    - name: Install the Apple certificate and provisioning profile
+      shell: bash
+      env:
+        IOS_BUILD_CERTIFICATE_BASE64: ${{ inputs.certificate-base64 }}
+        IOS_BUILD_CERTIFICATE_PASSWORD: ${{ inputs.certificate-password }}
+        IOS_MOBILE_PROVISIONING_PROFILE_BASE64: ${{ inputs.provisioning-profile-base64 }}
+        IOS_GITHUB_KEYCHAIN_PASSWORD: ${{ inputs.keychain-password }}
+      run: |
+        # create variables
+        CERTIFICATE_PATH=$RUNNER_TEMP/build_certificate.p12
+        PP_PATH=$RUNNER_TEMP/build_pp.mobileprovision
+        KEYCHAIN_PATH=$RUNNER_TEMP/app-signing.keychain-db
+
+        # import certificate and provisioning profile from secrets
+        echo -n "$IOS_BUILD_CERTIFICATE_BASE64" | base64 --decode -o $CERTIFICATE_PATH
+        echo -n "$IOS_MOBILE_PROVISIONING_PROFILE_BASE64" | base64 --decode -o $PP_PATH
+
+        # create temporary keychain
+        security create-keychain -p "$IOS_GITHUB_KEYCHAIN_PASSWORD" $KEYCHAIN_PATH
+        security set-keychain-settings -lut 21600 $KEYCHAIN_PATH
+        security unlock-keychain -p "$IOS_GITHUB_KEYCHAIN_PASSWORD" $KEYCHAIN_PATH
+
+        # import certificate to keychain
+        security import $CERTIFICATE_PATH -P "$IOS_BUILD_CERTIFICATE_PASSWORD" -A -t cert -f pkcs12 -k $KEYCHAIN_PATH
+        security list-keychain -d user -s $KEYCHAIN_PATH
+        security find-identity -v
+
+        # apply provisioning profile
+        mkdir -p ~/Library/MobileDevice/Provisioning\ Profiles
+        cp $PP_PATH ~/Library/MobileDevice/Provisioning\ Profiles
+
+    - name: List profiles
+      run: cd ~/Library/MobileDevice/Provisioning\ Profiles && ls
+      shell: bash
+
+    - name: Build
+      run: ${{ inputs.build-cmd }}
+      shell: bash
+      working-directory: ${{ inputs.working-directory }}
+
+    # Cleanup: remove the certificate and provisioning profile from the runner!
+    - name: Clean up keychain and provisioning profile
+      shell: bash
+      if: ${{ always() }}
+      run: |
+        security delete-keychain $RUNNER_TEMP/app-signing.keychain-db
+        rm ~/Library/MobileDevice/Provisioning\ Profiles/build_pp.mobileprovision
