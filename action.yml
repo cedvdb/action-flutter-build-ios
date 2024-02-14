@@ -1,9 +1,6 @@
 name: Build ios
 description: Build ios app see https://docs.github.com/en/actions/deployment/deploying-xcode-applications/installing-an-apple-certificate-on-macos-runners-for-xcode-development for more info
 inputs:
-  working-directory:
-    description: The root directory of the flutter app within this repository
-    default: ./
   build-cmd:
     description: The full build command, can be used to add arguments
     default: flutter build ipa --release

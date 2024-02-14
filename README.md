@@ -1,5 +1,7 @@
 
-Setups the macos environment to be able to build a flutter app targetting ios
+Setups the macos environment to be able to build a flutter app targetting ios. 
+
+This requires some steps in order for this action to be successful:
 
 
 
@@ -37,9 +39,15 @@ and add those values to your github repository secrets. The keychain password ca
  - IOS_GITHUB_KEYCHAIN_PASSWORD : A random string of your choosing
  - IOS_MOBILE_PROVISIONING_PROFILE_BASE64 : The base64 version of your.mobileprovision file
 
-# 3. Add export options
+# 3. Build locally with manual signing
 
-add the following `GithubActionsExportOptions.plist` file to the ios directory
+In Xcode, automatic signing should be checked for a new flutter project. Uncheck that box and select your provisioning profile from step #2. Then build your app locally.
+
+Once your app has been built locally, you should have a `ExportOptions.plist` file created in the build directory `build/ios/ipa/ExportOptions.plist`. 
+
+# 4. Add export options
+
+Copy the content of `ExportOptions.plist` from the build in step #3, and add it to a new `GithubActionsExportOptions.plist` file in the ios directory. This will be used by the action to sign the app.
 
 ```
 <?xml version="1.0" encoding="UTF-8"?>
@@ -77,7 +85,7 @@ Replaces the values in the above files for:
   - PACKAGE_NAME
   - MOBILE PROVISION NAME
 
-# 4. Usage
+# 5. Usage
 
 
 ```yaml
@@ -97,19 +105,18 @@ jobs:
 
       - uses: cedvdb/flutter-build-ios
         with:
-          build-cmd: flutter build ipa --release --flavor dev --dart-define="flavor=dev" --export-options-plist=ios/GithubActionsExportOptions.plist
+          build-cmd: flutter build ipa --release --flavor dev --export-options-plist=ios/GithubActionsExportOptions.plist
           certificate-base64: ${{ secrets.IOS_BUILD_CERTIFICATE_BASE64 }}
           certificate-password: ${{ secrets.IOS_BUILD_CERTIFICATE_PASSWORD }}
           provisioning-profile-base64: ${{ secrets.IOS_MOBILE_PROVISIONING_PROFILE_BASE64 }}
           keychain-password: ${{ secrets.IOS_GITHUB_KEYCHAIN_PASSWORD }}
 
-          
-      - name: Archive APK
+      - name: Archive IPA
         uses: actions/upload-artifact@v2
         with:
-          name: release-apk
+          name: release-ipa
           # Try running the build locally with the build command to be sure of this path
-          path: build/app/outputs/flutter-apk/app-dev-release.apk
+          path: build/ios/ipa/App-dev.ipa
 ```
 
-Note: when using the build-cmd, use the `--export-options-plist=ios/GithubActionsExportOptions.plist` argument, so it uses the export option created in step #3.
+Note: when using the build-cmd, use the `--export-options-plist=ios/GithubActionsExportOptions.plist` argument, so it uses the export option created in step #4.
