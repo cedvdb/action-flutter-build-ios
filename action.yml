@@ -103,4 +103,6 @@ runs:
       if: ${{ always() }}
       run: |
         security delete-keychain $RUNNER_TEMP/app-signing.keychain-db
-        rm ~/Library/MobileDevice/Provisioning\ Profiles/build_pp.mobileprovision
+        rm ~/Library/MobileDevice/Provisioning\ Profiles/$IOS_MOBILE_PROVISIONING_PROFILE_NAME.mobileprovision
+      env:
+        IOS_MOBILE_PROVISIONING_PROFILE_NAME: ${{ inputs.provisioning-profile-name }}
