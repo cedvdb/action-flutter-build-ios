@@ -15,10 +15,10 @@ inputs:
     description: "base 64 of the p12 certificate"
     required: true
   certificate-password:
-    description: "password of the above certificate, note to cedric: it should be in password manager in ios_cert.p12"
+    description: "password of the above certificate"
     required: true
   provisioning-profile-base64:
-    description: "base 64 of comover.mobileprovision"
+    description: "base 64 of your.mobileprovision"
     required: true
   keychain-password:
     description: "random string in secrets"
