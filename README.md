@@ -39,53 +39,36 @@ and add those values to your github repository secrets. The keychain password ca
  - IOS_GITHUB_KEYCHAIN_PASSWORD : A random string of your choosing
  - IOS_MOBILE_PROVISIONING_PROFILE_BASE64 : The base64 version of your.mobileprovision file
 
-# 3. Build locally with manual signing
+# 3. Build locally
 
-In Xcode, automatic signing should be checked for a new flutter project. Uncheck that box and select your provisioning profile from step #2. Then build your app locally.
+Follow this step closely:
 
-Once your app has been built locally, you should have a `ExportOptions.plist` file created in the build directory `build/ios/ipa/ExportOptions.plist`. 
-
-# 4. Add export options
-
-Copy the content of `ExportOptions.plist` from the build in step #3, and add it to a new `GithubActionsExportOptions.plist` file in the ios directory. This will be used by the action to sign the app.
+1. In Xcode, automatic signing should be checked for a new flutter project. Build your project once with this enabled.
+2. Once your app has been built locally, you should have a `ExportOptions.plist` file created in the build directory `build/ios/ipa/ExportOptions.plist`. 
+3. Copy the content of `ExportOptions.plist` and add it to a new `GithubActionsExportOptions.plist` file in the ios directory. This will be used by the action to sign the app.
+4. Change the signingStyle to manual and add your provisional profile into `GithubActionsExportOptions.plist`. You should have this:
 
 ```
-<?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
-<plist version="1.0">
-	<dict>
-		<key>generateAppStoreInformation</key>
-		<false/>
-		<key>manageAppVersionAndBuildNumber</key>
-		<true/>
-		<key>method</key>
-		<string>app-store</string>
-		<key>signingStyle</key>
-		<string>manual</string>
-		<key>provisioningProfiles</key>
-		<dict>
-			<key>{{ YOUR PACKAGE NAME }}</key>
-			<string>{{ YOUR MOBILE PROVISION NAME }}</string>
-		</dict>
-		<key>stripSwiftSymbols</key>
-		<true/>
-		<key>teamID</key>
-		<string>{{ YOUR TEAM ID }}</string>
-		<key>testFlightInternalTestingOnly</key>
-		<false/>
-		<key>uploadSymbols</key>
-		<true/>
-	</dict>
-</plist>
+<key>signingStyle</key>
+<string>manual</string>
+<key>provisioningProfiles</key>
+<dict>
+  <key>com.myapp.app.dev</key>
+  <string>{{ YOUR PROFIL NAME }}</string>
+</dict>
 ```
 
-Replaces the values in the above files for:
-  
-  - TEAM_ID
-  - PACKAGE_NAME
-  - MOBILE PROVISION NAME
+You can find the profile name in the [developer account profile list](https://developer.apple.com/account/resources/profiles/list)
 
-# 5. Usage
+5. In Xcode, untick the Automatic signing checkbox and choose your profile (the same as above).
+
+6. You should now be able to build the project locally the same way it will be built in the action, verify that it is the case:
+
+```
+flutter build ipa --release --export-options-plist ios/GithubActionsExportOptions.plist
+```
+
+# 4. Usage
 
 
 ```yaml
@@ -106,6 +89,7 @@ jobs:
       - uses: cedvdb/flutter-build-ios
         with:
           build-cmd: flutter build ipa --release --flavor dev --export-options-plist=ios/GithubActionsExportOptions.plist
+          provisioning-profile-name: distribution_pp
           certificate-base64: ${{ secrets.IOS_BUILD_CERTIFICATE_BASE64 }}
           certificate-password: ${{ secrets.IOS_BUILD_CERTIFICATE_PASSWORD }}
           provisioning-profile-base64: ${{ secrets.IOS_MOBILE_PROVISIONING_PROFILE_BASE64 }}
@@ -119,4 +103,4 @@ jobs:
           path: build/ios/ipa/App-dev.ipa
 ```
 
-Note: when using the build-cmd, use the `--export-options-plist=ios/GithubActionsExportOptions.plist` argument, so it uses the export option created in step #4.
+Note: when using the build-cmd, use the `--export-options-plist=ios/GithubActionsExportOptions.plist` argument, so it uses the export option created in step #3.

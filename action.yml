@@ -8,9 +8,12 @@ inputs:
     description: The full build command, can be used to add arguments
     default: flutter build ipa --release
   flutterfire:
-    description: "Whether this project uses flutterfire"
+    description: "Whether this project uses flutterfire, this is needed because flutterfire cli adds a post build script..."
     required: false
     default: "true" # we'll setup flutter fire just in case
+  provisioning-profile-name:
+    description: Your provisioning profile name
+    required: true
   certificate-base64:
     description: "base 64 of the p12 certificate"
     required: true
@@ -60,10 +63,11 @@ runs:
         IOS_BUILD_CERTIFICATE_PASSWORD: ${{ inputs.certificate-password }}
         IOS_MOBILE_PROVISIONING_PROFILE_BASE64: ${{ inputs.provisioning-profile-base64 }}
         IOS_GITHUB_KEYCHAIN_PASSWORD: ${{ inputs.keychain-password }}
+        IOS_MOBILE_PROVISIONING_PROFILE_NAME: ${{ inputs.provisioning-profile-name }}
       run: |
         # create variables
         CERTIFICATE_PATH=$RUNNER_TEMP/build_certificate.p12
-        PP_PATH=$RUNNER_TEMP/build_pp.mobileprovision
+        PP_PATH=$RUNNER_TEMP/$IOS_MOBILE_PROVISIONING_PROFILE_NAME.mobileprovision
         KEYCHAIN_PATH=$RUNNER_TEMP/app-signing.keychain-db
 
         # import certificate and provisioning profile from secrets
