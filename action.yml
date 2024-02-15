@@ -67,12 +67,15 @@ runs:
         CERTIFICATE_PATH=$RUNNER_TEMP/build_certificate.p12
         KEYCHAIN_PATH=$RUNNER_TEMP/app-signing.keychain-db
         PP_PATH_TEMP=$RUNNER_TEMP/temp.mobileprovision
-        UUID=$(/usr/libexec/PlistBuddy -c 'Print :Name' /dev/stdin <<< $(security cms -D -i $PP_PATH_TEMP))
-        PP_PATH=$RUNNER_TEMP/$UUID.mobileprovision
+
 
         # import certificate and provisioning profile from secrets
         echo -n "$IOS_BUILD_CERTIFICATE_BASE64" | base64 --decode -o $CERTIFICATE_PATH
-        echo -n "$IOS_MOBILE_PROVISIONING_PROFILE_BASE64" | base64 --decode -o $PP_PATH
+        echo -n "$IOS_MOBILE_PROVISIONING_PROFILE_BASE64" | base64 --decode -o $PP_PATH_TEMP
+
+        # use uuid for the name of provisioning profile
+        UUID=$(/usr/libexec/PlistBuddy -c 'Print :Name' /dev/stdin <<< $(security cms -D -i $PP_PATH_TEMP))
+        PP_PATH=$RUNNER_TEMP/$UUID.mobileprovision
 
         # create temporary keychain
         security create-keychain -p "$IOS_GITHUB_KEYCHAIN_PASSWORD" $KEYCHAIN_PATH
