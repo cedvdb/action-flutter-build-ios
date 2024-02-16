@@ -66,17 +66,12 @@ runs:
         # create variables
         CERTIFICATE_PATH=$RUNNER_TEMP/build_certificate.p12
         KEYCHAIN_PATH=$RUNNER_TEMP/app-signing.keychain-db
-        PP_PATH_TEMP=$RUNNER_TEMP/temp.mobileprovision
+        PP_PATH=$RUNNER_TEMP/temp.mobileprovision
 
 
         # import certificate and provisioning profile from secrets
         echo -n "$IOS_BUILD_CERTIFICATE_BASE64" | base64 --decode -o $CERTIFICATE_PATH
-        echo -n "$IOS_MOBILE_PROVISIONING_PROFILE_BASE64" | base64 --decode -o $PP_PATH_TEMP
-
-        # use uuid for the name of provisioning profile
-        UUID=$(/usr/libexec/PlistBuddy -c "Print UUID" /dev/stdin <<< $(/usr/bin/security cms -D -i $PP_PATH_TEMP))
-        PP_PATH=$RUNNER_TEMP/$UUID.mobileprovision
-        echo $PP_PATH
+        echo -n "$IOS_MOBILE_PROVISIONING_PROFILE_BASE64" | base64 --decode -o $PP_PATH
 
         # create temporary keychain
         security create-keychain -p "$IOS_GITHUB_KEYCHAIN_PASSWORD" $KEYCHAIN_PATH
@@ -88,9 +83,12 @@ runs:
         security list-keychain -d user -s $KEYCHAIN_PATH
         security find-identity -v
 
+        # use uuid for the name of provisioning profile
+        UUID=$(/usr/libexec/PlistBuddy -c "Print UUID" /dev/stdin <<< $(/usr/bin/security cms -D -i $PP_PATH))
+
         # apply provisioning profile
         mkdir -p ~/Library/MobileDevice/Provisioning\ Profiles
-        cp $PP_PATH ~/Library/MobileDevice/Provisioning\ Profiles
+        cp $PP_PATH ~/Library/MobileDevice/Provisioning\ Profiles/$UUID.mobileprovision
 
     - name: List profiles
       run: cd ~/Library/MobileDevice/Provisioning\ Profiles && ls
