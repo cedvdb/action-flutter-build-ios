@@ -1,4 +1,4 @@
-name: Build ios
+name: flutter-build-ios
 description: Build ios app see https://docs.github.com/en/actions/deployment/deploying-xcode-applications/installing-an-apple-certificate-on-macos-runners-for-xcode-development for more info
 branding:
   icon: box
