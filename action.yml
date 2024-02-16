@@ -74,7 +74,7 @@ runs:
         echo -n "$IOS_MOBILE_PROVISIONING_PROFILE_BASE64" | base64 --decode -o $PP_PATH_TEMP
 
         # use uuid for the name of provisioning profile
-        UUID=$(/usr/libexec/PlistBuddy -c "Print UUID" /dev/stdin <<< $(/usr/bin/security cms -D -i $PP_PATH))
+        UUID=$(/usr/libexec/PlistBuddy -c "Print UUID" /dev/stdin <<< $(/usr/bin/security cms -D -i $PP_PATH_TEMP))
         PP_PATH=$RUNNER_TEMP/$UUID.mobileprovision
         echo $PP_PATH
 
