@@ -1,8 +1,14 @@
 
+
+
 Setups the macos environment to be able to build a flutter app targetting ios. 
 
 This requires some steps in order for this action to be successful:
 
+# See also
+
+  - [flutter build android](https://github.com/cedvdb/action-flutter-build-android)
+  - [flutter build web](https://github.com/cedvdb/action-flutter-build-web)
 
 
 # 1. Gather the certificate and provisioning profile
