@@ -1,5 +1,5 @@
 name: flutter-build-ios
-description: Build ios app see https://docs.github.com/en/actions/deployment/deploying-xcode-applications/installing-an-apple-certificate-on-macos-runners-for-xcode-development for more info
+description: Setups the environment to build ios apps with flutter
 branding:
   icon: box
   color: green
@@ -56,6 +56,7 @@ runs:
       run: dart pub global activate flutterfire_cli 0.3.0-dev.19 --overwrite
       shell: bash
 
+    # see https://docs.github.com/en/actions/deployment/deploying-xcode-applications/installing-an-apple-certificate-on-macos-runners-for-xcode-development for more info
     - name: Install the Apple certificate and provisioning profile
       shell: bash
       env:
