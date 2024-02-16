@@ -74,8 +74,9 @@ runs:
         echo -n "$IOS_MOBILE_PROVISIONING_PROFILE_BASE64" | base64 --decode -o $PP_PATH_TEMP
 
         # use uuid for the name of provisioning profile
-        UUID=$(/usr/libexec/PlistBuddy -c 'Print :Name' /dev/stdin <<< $(security cms -D -i $PP_PATH_TEMP))
+        UUID=$(/usr/libexec/PlistBuddy -c "Print UUID" /dev/stdin <<< $(/usr/bin/security cms -D -i $PP_PATH))
         PP_PATH=$RUNNER_TEMP/$UUID.mobileprovision
+        echo $PP_PATH
 
         # create temporary keychain
         security create-keychain -p "$IOS_GITHUB_KEYCHAIN_PASSWORD" $KEYCHAIN_PATH
