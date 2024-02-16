@@ -94,7 +94,7 @@ jobs:
     steps:
       - uses: actions/checkout@v2
 
-      - uses: cedvdb/flutter-build-ios
+      - uses: cedvdb/action-flutter-build-ios@v1
         with:
           # always use --export-options-plist=ios/GithubActionsExportOptions.plist
           build-cmd: flutter build ipa --release --flavor dev --export-options-plist=ios/GithubActionsExportOptions.plist
