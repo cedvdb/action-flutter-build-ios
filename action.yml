@@ -10,6 +10,9 @@ inputs:
   build-cmd:
     description: The full build command, can be used to add arguments
     default: flutter build ipa --release
+  flutter-channel:
+    description: The flutter channel
+    default: "stable"
   flutterfire:
     description: "Whether this project uses flutterfire, this is needed because flutterfire cli adds a post build script..."
     required: false
@@ -48,7 +51,7 @@ runs:
       if: steps.check_flutter.outputs.installed == 'false'
       uses: subosito/flutter-action@v2
       with:
-        channel: "stable"
+        channel: ${{ inputs.flutter-channel }}
         cache: true
 
     - name: Activate flutterfire
