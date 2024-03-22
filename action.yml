@@ -1,4 +1,4 @@
-name: flutter-build-ios
+name: flutter-build-ios-custom-channel
 description: Setups the environment to build ios apps with flutter
 branding:
   icon: box
