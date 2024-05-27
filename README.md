@@ -17,7 +17,7 @@ You'll need:
   
   - the p12 ditribution certificate
   - the password for the p12 certificate
-  - the distribution provisioning profile
+  - the provisioning profile (most likely distribution or ad_hoc)
 
 [Here is how to get those](https://ioscodesigning.io/exporting-code-signing-files)
 
