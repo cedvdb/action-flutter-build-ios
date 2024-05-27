@@ -17,7 +17,7 @@ You'll need:
   
   - the p12 ditribution certificate
   - the password for the p12 certificate
-  - the distribution provisioning profile
+  - the provisioning profile (most likely distribution or ad_hoc)
 
 [Here is how to get those](https://ioscodesigning.io/exporting-code-signing-files)
 
@@ -66,14 +66,13 @@ Follow this step closely:
 
 You can find the profile name in the [developer account profile list](https://developer.apple.com/account/resources/profiles/list)
 
-5. In Xcode, untick the Automatic signing checkbox for the release build and choose your profile (the same as above). Keep the signing manual for release builds.
+5. In Xcode, untick the Automatic signing checkbox for the release build and choose your profile (the same as above). Keep the signing manual for release builds. *
 
 6. You should now be able to build the project locally the same way it will be built in the action, verify that it is the case:
 
 ```
 flutter build ipa --release --export-options-plist ios/GithubActionsExportOptions.plist
 ```
-
 
 
 # 4. Usage
