@@ -60,7 +60,7 @@ Follow this step closely:
 <key>provisioningProfiles</key>
 <dict>
   <key>com.myapp.app.dev</key>
-  <string>{{ YOUR PROFIL NAME }}</string>
+  <string>{{ YOUR PROFILE NAME }}</string>
 </dict>
 ```
 
