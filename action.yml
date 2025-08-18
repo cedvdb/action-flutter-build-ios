@@ -26,6 +26,9 @@ inputs:
   keychain-password:
     description: "random string in secrets"
     required: true
+  flutter-version-file:
+    description: "The file that contains the flutter version to use, if not set will use the default flutter version"
+    required: false
 
 runs:
   using: "composite"
@@ -50,6 +53,7 @@ runs:
       with:
         channel: "stable"
         cache: true
+        flutter-version-file: ${{ inputs.flutter-version-file }}
 
     - name: Activate flutterfire
       if: ${{ inputs.flutterfire }} == 'true'
